@@ -75,6 +75,7 @@ Prop | Description | Type | Default
 `scrollViewStyle` | Custom style for the `FlatList` component | `object` | `{}`
 `onSingleTapConfirmed` | Fired after a single tap | `function`
 `onLongPress` | Fired after a long press | `function`
+`imageLoadingIndicatorProps` | Props to be passed to the underlying image `ActivityIndicator` component | `object` | React Native `ActivityIndicator` defaults
 `maxScale` | Sets the max zoom scale | `number` | `10`
 
 ## Scroll state and events

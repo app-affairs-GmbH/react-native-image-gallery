@@ -1,7 +1,8 @@
 import React, { PureComponent } from 'react';
-import { View, Text, Image, ViewPropTypes } from 'react-native';
+import { View, Text, Image, ViewPropTypes, ActivityIndicator } from 'react-native';
 import PropTypes from 'prop-types';
 import ViewTransformer from '../ViewTransformer';
+import ImageLoadingIndicator from '../ActivityIndicator';
 
 export default class TransformableImage extends PureComponent {
     static propTypes = {
@@ -23,6 +24,7 @@ export default class TransformableImage extends PureComponent {
         imageComponent: PropTypes.func,
         resizeMode: PropTypes.string,
         errorComponent: PropTypes.func,
+        imageLoadingIndicatorProps: PropTypes.shape(ActivityIndicator.propTypes),
         maxScale: PropTypes.number,
     };
 
@@ -144,7 +146,7 @@ export default class TransformableImage extends PureComponent {
 
     render () {
         const { imageDimensions, viewWidth, viewHeight, error, keyAccumulator, imageLoaded } = this.state;
-        const { style, image, imageComponent, resizeMode, enableTransform, enableScale, enableTranslate, onTransformGestureReleased, onViewTransformed, maxScale } = this.props;
+        const { style, image, imageComponent, resizeMode, enableTransform, enableScale, enableTranslate, onTransformGestureReleased, onViewTransformed, imageLoadingIndicatorProps, maxScale } = this.props;
 
         // let maxScale = 1;
         let contentAspectRatio;
@@ -177,21 +179,24 @@ export default class TransformableImage extends PureComponent {
         const content = imageComponent ? imageComponent(imageProps, imageDimensions) : <Image { ...imageProps } />;
 
         return (
-            <ViewTransformer
-              ref={'viewTransformer'}
-              key={'viewTransformer#' + keyAccumulator} // when image source changes, we should use a different node to avoid reusing previous transform state
-              enableTransform={enableTransform && imageLoaded} // disable transform until image is loaded
-              enableScale={enableScale}
-              enableTranslate={enableTranslate}
-              enableResistance={true}
-              onTransformGestureReleased={onTransformGestureReleased}
-              onViewTransformed={onViewTransformed}
-              maxScale={maxScale}
-              contentAspectRatio={contentAspectRatio}
-              onLayout={this.onLayout}
-              style={style}>
-                { error ? this.renderError() : content }
-            </ViewTransformer>
+            <View>
+                <ViewTransformer
+                ref={'viewTransformer'}
+                key={'viewTransformer#' + keyAccumulator} // when image source changes, we should use a different node to avoid reusing previous transform state
+                enableTransform={enableTransform && imageLoaded} // disable transform until image is loaded
+                enableScale={enableScale}
+                enableTranslate={enableTranslate}
+                enableResistance={true}
+                onTransformGestureReleased={onTransformGestureReleased}
+                onViewTransformed={onViewTransformed}
+                maxScale={maxScale}
+                contentAspectRatio={contentAspectRatio}
+                onLayout={this.onLayout}
+                style={style}>
+                    { error ? this.renderError() : content }
+                </ViewTransformer>
+                {!imageLoaded && <ImageLoadingIndicator {...imageLoadingIndicatorProps} />}
+            </View>
         );
     }
 }
