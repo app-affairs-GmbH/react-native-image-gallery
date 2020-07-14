@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import { View, Text, Image, ViewPropTypes, ActivityIndicator } from 'react-native';
+import ImageSize from 'react-native-image-size'
 import PropTypes from 'prop-types';
 import ViewTransformer from '../ViewTransformer';
 import ImageLoadingIndicator from '../ActivityIndicator';
@@ -112,21 +113,18 @@ export default class TransformableImage extends PureComponent {
         }
 
         if (source && source.uri) {
-            Image.getSize(
-                source.uri,
-                (width, height) => {
-                    if (width && height) {
-                        if (this.state.imageDimensions && this.state.imageDimensions.width === width && this.state.imageDimensions.height === height) {
-                            // no need to update state
-                        } else {
-                            this._mounted && this.setState({ imageDimensions: { width, height } });
-                        }
+            // @Gabcvit 14.07.2020: here we're using ImageSize library, because react-native's Image.getSize() is not reliable for android devices
+            ImageSize.getSize(source.uri).then(size => {
+                if (size.width && size.height) {
+                    if (this.state.imageDimensions && this.state.imageDimensions.width === size.width && this.state.imageDimensions.height === size.height) {
+                        // no need to update state
+                    } else {
+                        this._mounted && this.setState({ imageDimensions: { width: size.width, height: size.height } });
                     }
-                },
-                () => {
+                } else {
                     this._mounted && this.setState({ error: true });
                 }
-            );
+            })
         } else {
             console.warn('react-native-image-gallery', 'Please provide dimensions of your local images');
         }
